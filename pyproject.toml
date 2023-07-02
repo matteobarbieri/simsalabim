@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "simsalabim"
+version = "0.1.0"
+description = ""
+authors = ["Matteo Barbieri <neopard@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+jupyter = "^1.0.0"
+librosa = "^0.10.0.post2"
+pandas = "^2.0.3"
+seaborn = "^0.12.2"
+lightning = "^2.0.4"
+tqdm = "^4.65.0"
+torch = "^1.13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
