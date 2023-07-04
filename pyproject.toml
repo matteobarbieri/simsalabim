@@ -17,6 +17,9 @@ tqdm = "^4.65.0"
 torch = "^1.13"
 torchvision = "0.14.1"
 tensorboard = "^2.13.0"
+uvicorn = {extras = ["standard"], version = "^0.22.0"}
+fastapi = "^0.99.1"
+python-multipart = "^0.0.6"
 
 
 [build-system]
