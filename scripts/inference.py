@@ -1,5 +1,3 @@
-from typing import Union
-
 import os, sys
 
 # Add src folder in root repo to Python path
@@ -11,25 +9,11 @@ import torch
 
 from audio import wav_to_dfmel
 
-from fastapi import FastAPI, UploadFile
+def main():
 
-app = FastAPI()
+    S_db_mel = wav_to_dfmel(sys.argv[1])
 
-
-litnet = get_model()
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.post("/uploadfile")
-async def create_upload_file(file: UploadFile):
-    # print(file.filename)
-
-    S_db_mel = wav_to_dfmel(file.file)
-
-    global litnet
+    litnet = get_model()
 
     train_transforms = get_transforms()
 
@@ -50,11 +34,13 @@ async def create_upload_file(file: UploadFile):
         'reggae': 8, 
         'rock': 9
     }
-    
+
     int_to_cat = {v: k for k, v in cat_to_int.items()}
 
     predicted_genre = int_to_cat[cat_idx]
     
     print(f"Predicted genre: {predicted_genre}")
 
-    return {"predicted_genre": predicted_genre}
+
+if __name__ == '__main__':
+    main()
