@@ -31,13 +31,14 @@ ex.observers.append(
 
 @ex.config
 def my_config():
-    lr = 2e-4  # Learning rate
-    epochs = 3  # Number of epochs
-    batch_size = 64  # Number of samples per batch
+    lr: float = 2e-4  # Learning rate
+    epochs: int = 3  # Number of epochs
+    batch_size: int = 64  # Number of samples per batch
+    tag: str = None
 
 
 @ex.automain
-def train(_run, lr, epochs, batch_size):
+def train(_run, lr, epochs, batch_size, tag):
     train_transforms = get_transforms()
 
     dataset_train = NpyDataset(
@@ -52,18 +53,22 @@ def train(_run, lr, epochs, batch_size):
         "test",
         transform=train_transforms,
     )
+    
 
-    train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=2)
-    val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=2)
+    train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=7)
+    val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)
 
     litnet = get_model(eval=False, pretrained=True, lr=lr, _run=_run)
 
     checkpoint_callback = ModelCheckpoint(
-        dirpath="model_checkpoints", save_top_k=2, monitor="val.loss"
+        dirpath="model_checkpoints",
+        save_top_k=2,
+        monitor="val.loss",
+        filename=f"{tag}-" + "{epoch}",
     )
+
     early_stopping_callback = EarlyStopping(monitor="val.loss", patience=5, mode="min")
 
-    # train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
     trainer = pl.Trainer(
         max_epochs=epochs,
         callbacks=[

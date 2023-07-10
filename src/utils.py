@@ -1,4 +1,4 @@
-from torchvision.models import resnet18
+from torchvision.models import resnet18, resnet50
 
 from torch import nn
 
@@ -14,12 +14,14 @@ def get_model(
     lr: float = 2e-4,
     _run=None,
 ):
-    # Inference stuff
     net = resnet18(pretrained=pretrained)
+    net.fc = nn.Linear(512 * 1, 10)
+
+    # net = resnet50(pretrained=pretrained)
+    # net.fc = nn.Linear(512 * 4, 10)
 
     # Required layer change for 1-dim input
     net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-    net.fc = nn.Linear(512 * 1, 10)
 
     # Load weights, if coming from a trained model
     if weights_path is not None:
