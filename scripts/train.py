@@ -1,7 +1,7 @@
 import os, sys
 
 # Add src folder in root repo to Python path
-sys.path.append(os.path.dirname(__file__) + '/../src')
+sys.path.append(os.path.dirname(__file__) + "/../src")
 
 from data import NpyDataset
 from models import LitResnet
@@ -15,11 +15,22 @@ import lightning.pytorch as pl
 
 from torch.utils.data import DataLoader
 
+
 def main():
     train_transforms = get_transforms()
 
-    dataset_train = NpyDataset("data/gtzan_processed", "data/gtzan_processed/metadata.csv", 'train', transform=train_transforms)
-    dataset_val = NpyDataset("data/gtzan_processed", "data/gtzan_processed/metadata.csv", 'test', transform=train_transforms)
+    dataset_train = NpyDataset(
+        "data/gtzan_processed",
+        "data/gtzan_processed/metadata.csv",
+        "train",
+        transform=train_transforms,
+    )
+    dataset_val = NpyDataset(
+        "data/gtzan_processed",
+        "data/gtzan_processed/metadata.csv",
+        "test",
+        transform=train_transforms,
+    )
 
     train_loader = DataLoader(dataset_train, batch_size=64)
     val_loader = DataLoader(dataset_val, batch_size=64)
@@ -36,7 +47,10 @@ def main():
 
     # train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
     trainer = pl.Trainer(max_epochs=1)
-    trainer.fit(model=litnet, train_dataloaders=train_loader, val_dataloaders=val_loader)
+    trainer.fit(
+        model=litnet, train_dataloaders=train_loader, val_dataloaders=val_loader
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

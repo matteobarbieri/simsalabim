@@ -6,6 +6,7 @@ from models import LitResnet
 
 import torchvision.transforms as transforms
 
+
 def get_model(weights_path: str = None, eval: bool = True, pretrained: bool = False):
     # Inference stuff
     net = resnet18(pretrained=pretrained)
@@ -16,8 +17,7 @@ def get_model(weights_path: str = None, eval: bool = True, pretrained: bool = Fa
 
     # Load weights, if coming from a trained model
     if weights_path is not None:
-        litnet = LitResnet.load_from_checkpoint(
-            weights_path, net=net)
+        litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
     else:
         litnet = LitResnet(net)
 
@@ -28,10 +28,12 @@ def get_model(weights_path: str = None, eval: bool = True, pretrained: bool = Fa
 
 
 def get_transforms():
-    _transforms = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Resize((256, 1290), transforms.InterpolationMode.NEAREST),
-        transforms.Normalize(mean=[-80.0], std=[80])
-    ])
+    _transforms = transforms.Compose(
+        [
+            transforms.ToTensor(),
+            transforms.Resize((256, 1290), transforms.InterpolationMode.NEAREST),
+            transforms.Normalize(mean=[-80.0], std=[80]),
+        ]
+    )
 
     return _transforms
