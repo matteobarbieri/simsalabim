@@ -20,6 +20,8 @@ tensorboard = "^2.13.0"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
 fastapi = "^0.99.1"
 python-multipart = "^0.0.6"
+sacred = "^0.8.4"
+pymongo = "^4.4.0"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -1,3 +1,10 @@
+.PHONY: mongo-up
+mongo-up:
+	docker compose up
+
+.PHONY: mongo-down
+mongo-down:
+	docker compose down
 
 .PHONY: build
 build:

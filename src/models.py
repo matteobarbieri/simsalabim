@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 
 # define the LightningModule
 class LitResnet(pl.LightningModule):
-    def __init__(self, net):
+    def __init__(self, net, lr=2e-4):
         super().__init__()
         self.net = net
         #         self.loss = nn.CrossEntropyLoss()
@@ -17,7 +17,7 @@ class LitResnet(pl.LightningModule):
         self.val_y = []
         self.val_y_hat = []
 
-        self.lr = 2e-4
+        self.lr = lr
 
     def forward(self, x):
         return self.net(x)

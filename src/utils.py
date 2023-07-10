@@ -7,7 +7,12 @@ from models import LitResnet
 import torchvision.transforms as transforms
 
 
-def get_model(weights_path: str = None, eval: bool = True, pretrained: bool = False):
+def get_model(
+    weights_path: str = None,
+    eval: bool = True,
+    pretrained: bool = False,
+    lr: float = 2e-4,
+):
     # Inference stuff
     net = resnet18(pretrained=pretrained)
 
@@ -19,7 +24,7 @@ def get_model(weights_path: str = None, eval: bool = True, pretrained: bool = Fa
     if weights_path is not None:
         litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
     else:
-        litnet = LitResnet(net)
+        litnet = LitResnet(net, lr=lr)
 
     if eval:
         litnet.eval()

@@ -4,19 +4,37 @@ import os, sys
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
 from data import NpyDataset
-from models import LitResnet
 from utils import get_model, get_transforms
-
-from torch import nn
-
-from torchvision.models import resnet18
 
 import lightning.pytorch as pl
 
 from torch.utils.data import DataLoader
 
+import logging
 
-def main():
+logging.basicConfig(level=logging.INFO)
+
+from sacred import Experiment
+
+from sacred.observers import MongoObserver
+
+
+ex = Experiment("GTZAN-test")
+
+ex.observers.append(
+    MongoObserver(url="mongodb://sample:password@localhost", db_name="db")
+)
+
+
+@ex.config
+def my_config():
+    lr = 2e-4  # Learning rate
+    epochs = 3  # Number of epochs
+    batch_size = 64  # Number of samples per batch
+
+
+@ex.automain
+def train(_run, lr, epochs, batch_size):
     train_transforms = get_transforms()
 
     dataset_train = NpyDataset(
@@ -32,8 +50,8 @@ def main():
         transform=train_transforms,
     )
 
-    train_loader = DataLoader(dataset_train, batch_size=64)
-    val_loader = DataLoader(dataset_val, batch_size=64)
+    train_loader = DataLoader(dataset_train, batch_size=batch_size)
+    val_loader = DataLoader(dataset_val, batch_size=batch_size)
 
     # net = resnet18(pretrained=True)
     # # Required layer change for 1-dim input
@@ -43,14 +61,14 @@ def main():
     # # init the lit module
     # litnet = LitResnet(net)
 
-    litnet = get_model(eval=False, pretrained=True)
+    litnet = get_model(eval=False, pretrained=True, lr=lr)
 
     # train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
-    trainer = pl.Trainer(max_epochs=1)
+    trainer = pl.Trainer(max_epochs=epochs)
     trainer.fit(
         model=litnet, train_dataloaders=train_loader, val_dataloaders=val_loader
     )
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
