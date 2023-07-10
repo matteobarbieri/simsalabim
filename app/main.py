@@ -15,8 +15,9 @@ from fastapi import FastAPI, UploadFile
 
 app = FastAPI()
 
+weights_path = 'lightning_logs/version_16/checkpoints/epoch=49-step=650.ckpt'
+litnet = get_model(weights_path=weights_path)
 
-litnet = get_model()
 
 @app.get("/")
 def read_root():

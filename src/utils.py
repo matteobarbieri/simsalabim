@@ -6,18 +6,23 @@ from models import LitResnet
 
 import torchvision.transforms as transforms
 
-def get_model():
+def get_model(weights_path: str = None, eval: bool = True, pretrained: bool = False):
     # Inference stuff
-    net = resnet18()
+    net = resnet18(pretrained=pretrained)
 
     # Required layer change for 1-dim input
     net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
     net.fc = nn.Linear(512 * 1, 10)
 
-    litnet = LitResnet.load_from_checkpoint(
-        'lightning_logs/version_16/checkpoints/epoch=49-step=650.ckpt', net=net)
+    # Load weights, if coming from a trained model
+    if weights_path is not None:
+        litnet = LitResnet.load_from_checkpoint(
+            weights_path, net=net)
+    else:
+        litnet = LitResnet(net)
 
-    litnet.eval()
+    if eval:
+        litnet.eval()
 
     return litnet
 

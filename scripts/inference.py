@@ -13,7 +13,9 @@ def main():
 
     S_db_mel = wav_to_dfmel(sys.argv[1])
 
-    litnet = get_model()
+    weights_path = 'lightning_logs/version_16/checkpoints/epoch=49-step=650.ckpt'
+
+    litnet = get_model(weights_path=weights_path)
 
     train_transforms = get_transforms()
 
