@@ -70,7 +70,8 @@ class LitResnet(pl.LightningModule):
         self.val_y_hat.append(y_hat)
 
         # Logging to TensorBoard (if installed) by default
-        # self.log("val_loss", loss)
+        # Logging mostly for early stopping
+        self.log("val.loss", loss)
         return loss
 
     def on_validation_epoch_end(self):
@@ -96,6 +97,7 @@ class LitResnet(pl.LightningModule):
                 self.train_epoch_loss.item() / self.n_train,
                 self.current_epoch,
             )
+
             self._run.log_scalar(
                 "val.loss", self.val_epoch_loss.item() / self.n_val, self.current_epoch
             )

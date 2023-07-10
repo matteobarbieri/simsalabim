@@ -7,6 +7,9 @@ from data import NpyDataset
 from utils import get_model, get_transforms
 
 import lightning.pytorch as pl
+from lightning.pytorch.callbacks.early_stopping import EarlyStopping
+from lightning.pytorch.callbacks import ModelCheckpoint
+
 
 from torch.utils.data import DataLoader
 
@@ -50,15 +53,25 @@ def train(_run, lr, epochs, batch_size):
         transform=train_transforms,
     )
 
-    # self._run.log_scalar(metric_name, metric_value, epoch)
-
     train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=2)
     val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=2)
 
     litnet = get_model(eval=False, pretrained=True, lr=lr, _run=_run)
 
+    checkpoint_callback = ModelCheckpoint(
+        dirpath="model_checkpoints", save_top_k=2, monitor="val.loss"
+    )
+    early_stopping_callback = EarlyStopping(monitor="val.loss", patience=5, mode="min")
+
     # train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
-    trainer = pl.Trainer(max_epochs=epochs)
+    trainer = pl.Trainer(
+        max_epochs=epochs,
+        callbacks=[
+            early_stopping_callback,
+            checkpoint_callback,
+        ],
+    )
+
     trainer.fit(
         model=litnet, train_dataloaders=train_loader, val_dataloaders=val_loader
     )

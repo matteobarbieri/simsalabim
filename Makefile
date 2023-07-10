@@ -8,7 +8,7 @@ mongo-down:
 
 .PHONY: build
 build:
-	docker build -t gtzan_serve .
+	docker build --build-arg CHKPT_PATH=$(CHKPT_PATH) -t gtzan_serve .
 
 .PHONY: serve
 serve:
