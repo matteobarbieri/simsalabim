@@ -12,6 +12,7 @@ def get_model(
     eval: bool = True,
     pretrained: bool = False,
     lr: float = 2e-4,
+    _run=None,
 ):
     # Inference stuff
     net = resnet18(pretrained=pretrained)
@@ -24,7 +25,7 @@ def get_model(
     if weights_path is not None:
         litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
     else:
-        litnet = LitResnet(net, lr=lr)
+        litnet = LitResnet(net, lr=lr, _run=_run)
 
     if eval:
         litnet.eval()

@@ -50,25 +50,15 @@ def train(_run, lr, epochs, batch_size):
         transform=train_transforms,
     )
 
-    train_loader = DataLoader(dataset_train, batch_size=batch_size)
-    val_loader = DataLoader(dataset_val, batch_size=batch_size)
+    # self._run.log_scalar(metric_name, metric_value, epoch)
 
-    # net = resnet18(pretrained=True)
-    # # Required layer change for 1-dim input
-    # net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-    # net.fc = nn.Linear(512 * 1, 10)
+    train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=2)
+    val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=2)
 
-    # # init the lit module
-    # litnet = LitResnet(net)
-
-    litnet = get_model(eval=False, pretrained=True, lr=lr)
+    litnet = get_model(eval=False, pretrained=True, lr=lr, _run=_run)
 
     # train the model (hint: here are some helpful Trainer arguments for rapid idea iteration)
     trainer = pl.Trainer(max_epochs=epochs)
     trainer.fit(
         model=litnet, train_dataloaders=train_loader, val_dataloaders=val_loader
     )
-
-
-# if __name__ == "__main__":
-#     main()
