@@ -40,7 +40,7 @@ def get_transforms():
         [
             transforms.ToTensor(),
             transforms.Resize((256, 1290), transforms.InterpolationMode.NEAREST),
-            transforms.Normalize(mean=[-80.0], std=[80]),
+            transforms.Normalize(mean=[-72.79], std=[12.02]),  # computed from training data
         ]
     )
 

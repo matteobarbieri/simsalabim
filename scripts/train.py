@@ -41,19 +41,31 @@ def my_config():
 def train(_run, lr, epochs, batch_size, tag):
     train_transforms = get_transforms()
 
+    # dataset_train = NpyDataset(
+    #     "data/gtzan_processed",
+    #     "data/gtzan_processed/metadata.csv",
+    #     "train",
+    #     transform=train_transforms,
+    # )
+    # dataset_val = NpyDataset(
+    #     "data/gtzan_processed",
+    #     "data/gtzan_processed/metadata.csv",
+    #     "test",
+    #     transform=train_transforms,
+    # )
+
     dataset_train = NpyDataset(
-        "data/gtzan_processed",
-        "data/gtzan_processed/metadata.csv",
+        "data/gtzan_augmented_256_test",
+        "data/gtzan_augmented_256_test/metadata.csv",
         "train",
         transform=train_transforms,
     )
     dataset_val = NpyDataset(
-        "data/gtzan_processed",
-        "data/gtzan_processed/metadata.csv",
+        "data/gtzan_augmented_256_test",
+        "data/gtzan_augmented_256_test/metadata.csv",
         "test",
         transform=train_transforms,
     )
-    
 
     train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=7)
     val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)
