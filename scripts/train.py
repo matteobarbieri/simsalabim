@@ -3,8 +3,7 @@ import os, sys
 # Add src folder in root repo to Python path
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
-from data import NpyDataset
-from utils import get_model, get_transforms
+from utils import get_model, get_datasets
 
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
@@ -39,33 +38,12 @@ def my_config():
 
 @ex.automain
 def train(_run, lr, epochs, batch_size, tag):
-    train_transforms = get_transforms()
+    
+    # Available options:
+    # * 'gtzan_processed'
+    # * 'gtzan_augmented_256_test'
 
-    # dataset_train = NpyDataset(
-    #     "data/gtzan_processed",
-    #     "data/gtzan_processed/metadata.csv",
-    #     "train",
-    #     transform=train_transforms,
-    # )
-    # dataset_val = NpyDataset(
-    #     "data/gtzan_processed",
-    #     "data/gtzan_processed/metadata.csv",
-    #     "test",
-    #     transform=train_transforms,
-    # )
-
-    dataset_train = NpyDataset(
-        "data/gtzan_augmented_256_test",
-        "data/gtzan_augmented_256_test/metadata.csv",
-        "train",
-        transform=train_transforms,
-    )
-    dataset_val = NpyDataset(
-        "data/gtzan_augmented_256_test",
-        "data/gtzan_augmented_256_test/metadata.csv",
-        "test",
-        transform=train_transforms,
-    )
+    dataset_train, dataset_val = get_datasets('gtzan_processed')
 
     train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=7)
     val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)

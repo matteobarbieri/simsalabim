@@ -11,8 +11,8 @@ class LitResnet(pl.LightningModule):
     def __init__(self, net, lr=2e-4, _run=None):
         super().__init__()
         self.net = net
-        #         self.loss = nn.CrossEntropyLoss()
-        self.loss = nn.NLLLoss(reduction="sum")
+        self.loss = nn.CrossEntropyLoss(reduction="sum")
+        # self.loss = nn.NLLLoss(reduction="sum")
 
         # Keep track of how many samples are in the training and validation set (needed for comparing apples to apples)
         self.n_train = 0

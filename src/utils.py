@@ -1,11 +1,34 @@
 from torchvision.models import resnet18, resnet50
 
+from data import NpyDataset
+
 from torch import nn
 
 from models import LitResnet
 
 import torchvision.transforms as transforms
 
+def get_datasets(dataset: str, root_data_folder: str = 'data', metadata_file_name: str = 'metadata.csv'):
+    """
+    Utility function to retrieve different versions of the dataset
+    """
+
+    train_transforms = get_transforms()
+
+    dataset_train = NpyDataset(
+        f"{root_data_folder}/{dataset}",
+        f"{root_data_folder}/{dataset}/{metadata_file_name}",
+        "train",
+        transform=train_transforms,
+    )
+    dataset_val = NpyDataset(
+        f"{root_data_folder}/{dataset}",
+        f"{root_data_folder}/{dataset}/{metadata_file_name}",
+        "test",
+        transform=train_transforms,
+    )
+
+    return dataset_train, dataset_val
 
 def get_model(
     weights_path: str = None,
