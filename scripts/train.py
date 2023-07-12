@@ -38,12 +38,11 @@ def my_config():
 
 @ex.automain
 def train(_run, lr, epochs, batch_size, tag):
-    
     # Available options:
     # * 'gtzan_processed'
     # * 'gtzan_augmented_256_test'
 
-    dataset_train, dataset_val = get_datasets('gtzan_processed')
+    dataset_train, dataset_val = get_datasets("gtzan_processed")
 
     train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=7)
     val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)

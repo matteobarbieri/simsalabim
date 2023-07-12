@@ -8,7 +8,12 @@ from models import LitResnet
 
 import torchvision.transforms as transforms
 
-def get_datasets(dataset: str, root_data_folder: str = 'data', metadata_file_name: str = 'metadata.csv'):
+
+def get_datasets(
+    dataset: str,
+    root_data_folder: str = "data",
+    metadata_file_name: str = "metadata.csv",
+):
     """
     Utility function to retrieve different versions of the dataset
     """
@@ -29,6 +34,7 @@ def get_datasets(dataset: str, root_data_folder: str = 'data', metadata_file_nam
     )
 
     return dataset_train, dataset_val
+
 
 def get_model(
     weights_path: str = None,
@@ -63,7 +69,9 @@ def get_transforms():
         [
             transforms.ToTensor(),
             transforms.Resize((256, 1290), transforms.InterpolationMode.NEAREST),
-            transforms.Normalize(mean=[-72.79], std=[12.02]),  # computed from training data
+            transforms.Normalize(
+                mean=[-72.79], std=[12.02]
+            ),  # computed from training data
         ]
     )
 

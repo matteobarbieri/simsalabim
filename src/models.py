@@ -3,6 +3,8 @@ from torch import optim, nn
 
 import lightning.pytorch as pl
 
+from focal_loss import FocalLoss
+
 from sklearn.metrics import accuracy_score, confusion_matrix
 
 
@@ -11,8 +13,10 @@ class LitResnet(pl.LightningModule):
     def __init__(self, net, lr=2e-4, _run=None):
         super().__init__()
         self.net = net
-        self.loss = nn.CrossEntropyLoss(reduction="sum")
-        # self.loss = nn.NLLLoss(reduction="sum")
+
+        # self.loss = nn.CrossEntropyLoss(reduction="sum")
+        # self.loss = FocalLoss(reduction="sum")
+        self.loss = FocalLoss(size_average=False)
 
         # Keep track of how many samples are in the training and validation set (needed for comparing apples to apples)
         self.n_train = 0
@@ -36,8 +40,6 @@ class LitResnet(pl.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         logits = self.net(x)
-
-        predicted = torch.argmax(logits, axis=1)
 
         loss = self.loss(logits, y)
 
