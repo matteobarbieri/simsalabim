@@ -2912,6 +2912,62 @@ files = [
 ]
 
 [[package]]
+name = "pedalboard"
+version = "0.7.4"
+description = "A Python library for adding effects to audio."
+optional = false
+python-versions = "*"
+files = [
+    {file = "pedalboard-0.7.4-cp310-cp310-macosx_10_13_universal2.whl", hash = "sha256:f137ca57f29550e4ad7cbb365a44621fa07c2c4e3f7caea0add22658716ec5e5"},
+    {file = "pedalboard-0.7.4-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:7ae431895f5cf9e67c6f91f2fd6ec7573fb86d8b36dc9702ea19d21f28707ef0"},
+    {file = "pedalboard-0.7.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:cf452884fd280d895d0d8a607f8ae4b67d4bcf9fa46ab7cc9e50a9ee2bd6e1af"},
+    {file = "pedalboard-0.7.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:87b39fc469c7cc550e06f73cc71a9deb002615ef74439c77b62e6bf398d00129"},
+    {file = "pedalboard-0.7.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8663bb36460354c33e848df83dd1184caaa83ab68f43fceeb4ad9ea81a04325f"},
+    {file = "pedalboard-0.7.4-cp310-cp310-win_amd64.whl", hash = "sha256:64ac941882859cb510e545e3bfd1489bf084c003b9f8c2e08b6aa7fdeeeae6df"},
+    {file = "pedalboard-0.7.4-cp311-cp311-macosx_10_13_universal2.whl", hash = "sha256:7b60e10d193b07d29ded6afb4b68f1d91d61d0e1d8de801b11ccfd1e03b06368"},
+    {file = "pedalboard-0.7.4-cp311-cp311-macosx_10_13_x86_64.whl", hash = "sha256:c41ba21d92a7d7c5c3c32b3d4702b248799b287bb5e1fc943a02139fb71019bb"},
+    {file = "pedalboard-0.7.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:826b80a98830a2cd49bbe477457b039c4f8c3cfe8cd2cb1e7c4fa282cf07d3d4"},
+    {file = "pedalboard-0.7.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:c3df68b83eae3ef7ae8cc338d51d9e93ff9a5408d8c90cfc86929a342de7a1a9"},
+    {file = "pedalboard-0.7.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5e2eaec91ef476da2ce3b06370086d48a16910900d5c8ed45af1858613fd3c48"},
+    {file = "pedalboard-0.7.4-cp311-cp311-win_amd64.whl", hash = "sha256:04051dfd9fe1a1e063e78b02755f6f51b9bd2ae85e116be97842e8a34ca6a2cc"},
+    {file = "pedalboard-0.7.4-cp36-cp36m-macosx_10_13_x86_64.whl", hash = "sha256:3855e75315cc9669bf4e8b3fbdfbd6ad8626be14e5a01397ea2e5ac17587ec7c"},
+    {file = "pedalboard-0.7.4-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4c83ca12f4feeabbbd860181ce6b379fa79f925edf13fb632cf0686fa7cc03a3"},
+    {file = "pedalboard-0.7.4-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d330c5d217b2c2540a3c7224d4c381e9b4125e2f8d406f1030ab5f7d4fa9d6e4"},
+    {file = "pedalboard-0.7.4-cp36-cp36m-win_amd64.whl", hash = "sha256:a42a3a72b0dd41c14c2a285c2cb124f1a20126ac65183e55fb314493bf47ecaf"},
+    {file = "pedalboard-0.7.4-cp37-cp37m-macosx_10_13_x86_64.whl", hash = "sha256:b359e9fb9ad73b080da599632da5d81a2454c5b59b54852ad8b32650b28ae033"},
+    {file = "pedalboard-0.7.4-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2d07d4d6dd1deaa4e2642de15a33cc5317ae674a0cb42f2508ae3335b897c788"},
+    {file = "pedalboard-0.7.4-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a7b523848180eee96b07fee51d17cd95fd132be142e291510ee1ecf6e7298033"},
+    {file = "pedalboard-0.7.4-cp37-cp37m-win_amd64.whl", hash = "sha256:08f443aa17db368d325343f217b2db60dcabca671f9ef3333a001c33263cf272"},
+    {file = "pedalboard-0.7.4-cp38-cp38-macosx_10_13_universal2.whl", hash = "sha256:7921069da04e8f67ab0001ce88285bf89d398090fd03ed3eca2b3c8bbb186b36"},
+    {file = "pedalboard-0.7.4-cp38-cp38-macosx_10_13_x86_64.whl", hash = "sha256:7f5449a52052c2ec3e26d93e8b5a3fbedb48684f47d0465f38515b6801f857ed"},
+    {file = "pedalboard-0.7.4-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:60cb9c40477c4a012f2402e658015acb72fe5d65433ac0b0dbec6cd151810f26"},
+    {file = "pedalboard-0.7.4-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:204ce5add5b219c1d25990399e3ce0903822dd755185b44957680a0d6fb10e6f"},
+    {file = "pedalboard-0.7.4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:029cef4f1267d7613817cf2f3953e7b0c8a21db3ba74d2c0c138a8250332742d"},
+    {file = "pedalboard-0.7.4-cp38-cp38-win_amd64.whl", hash = "sha256:41e7d6d145edfaa8cd937f835e61de823ae7b9a3ebdeb876b05d52eba057d0e1"},
+    {file = "pedalboard-0.7.4-cp39-cp39-macosx_10_13_universal2.whl", hash = "sha256:fa8352e4afa5eb5ab7ecd2afa1bc3f1acc7940d81061fcf515ddc548a3b65540"},
+    {file = "pedalboard-0.7.4-cp39-cp39-macosx_10_13_x86_64.whl", hash = "sha256:666622f933bd99acd7da86c0192c4c64b2fa2c0469b788c89df51ef49d51eab1"},
+    {file = "pedalboard-0.7.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:99bee96c2afa00fc7f00781ae4e3f0647352043a4e3b4b67bbebb09866b2ebae"},
+    {file = "pedalboard-0.7.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:139140ec2c3dfa9d90c5d48862bd39b66f0e5bdf694a991698c36c00542ffd78"},
+    {file = "pedalboard-0.7.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:37a60712f8c96bb83abf45d4969c93adf03d0cde5f027032273e4e2a97db68b3"},
+    {file = "pedalboard-0.7.4-cp39-cp39-win_amd64.whl", hash = "sha256:dd11157a0ac245d2871d7e7b1330b955f7c1930d667314a86922182f1885161e"},
+    {file = "pedalboard-0.7.4-pp37-pypy37_pp73-macosx_10_13_x86_64.whl", hash = "sha256:c8f08344ed74df56148de6bc934dc3461b43216de1478a38b2893a01608e5c48"},
+    {file = "pedalboard-0.7.4-pp37-pypy37_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f40c0fe2bb2a2edc4a0addf685e7684c5b9e8b33c36743d3921e0a82dd0ec25b"},
+    {file = "pedalboard-0.7.4-pp37-pypy37_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f6ba3be244a2a861b72e8b6686191cc49aef8b5363bb0cac79806598fc4cdc6b"},
+    {file = "pedalboard-0.7.4-pp37-pypy37_pp73-win_amd64.whl", hash = "sha256:7ea0247e57bd92e0766d987f021c8e5ccb7c80763649fa112d867ab37d9ac6ab"},
+    {file = "pedalboard-0.7.4-pp38-pypy38_pp73-macosx_10_13_x86_64.whl", hash = "sha256:94c1d1536579aa53be5915c68c1d3edfc3eeba9ed72212b267c96bf64177a44d"},
+    {file = "pedalboard-0.7.4-pp38-pypy38_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:226aa031ed1e73db058adf9fb4a4647fb8f1d583736fcb7e3f2c906e7ef1a488"},
+    {file = "pedalboard-0.7.4-pp38-pypy38_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:51ded258b7377279330a73ee1d13ff724bfb57ff165a96c3ddf9edc068c2a4be"},
+    {file = "pedalboard-0.7.4-pp38-pypy38_pp73-win_amd64.whl", hash = "sha256:60f5c19f404f21fdd7f10326cb9b2a0947569f625284655f2fb115c94cba148a"},
+    {file = "pedalboard-0.7.4-pp39-pypy39_pp73-macosx_10_13_x86_64.whl", hash = "sha256:c778ffbd0f0412efb6cf1d5eee9aabaf724d5f62e61d43fa467e8355703bea75"},
+    {file = "pedalboard-0.7.4-pp39-pypy39_pp73-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:de6f4c2a5365059bcbb802f97bb4595e528e7046d0663fe2fd9e0e67ba4ea173"},
+    {file = "pedalboard-0.7.4-pp39-pypy39_pp73-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bc97e14e213a397a5494b33fef8054dbcb3ea2d67da455745097002b17385162"},
+    {file = "pedalboard-0.7.4-pp39-pypy39_pp73-win_amd64.whl", hash = "sha256:240a731817d2821b673ae7364cc31be802c8978923ceb92f74691a0721c12432"},
+]
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "pexpect"
 version = "4.8.0"
 description = "Pexpect allows easy control of interactive console applications."
@@ -4945,4 +5001,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a3bb21b41fe4c9fa5ecddbacb60740e4c7b00c4fefbf1f1572339b8c046fa882"
+content-hash = "1b6f2e0d5be18de8febfaa90489485ce89ce6cac94a714023cc992fa4262c09f"
