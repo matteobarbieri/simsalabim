@@ -33,16 +33,17 @@ def my_config():
     lr: float = 2e-4  # Learning rate
     epochs: int = 3  # Number of epochs
     batch_size: int = 64  # Number of samples per batch
-    tag: str = None
+    tag: str = None  # A tag to identify correctly
+    dataset_folder: str = "gtzan_processed"  # Which dataset to use
 
 
 @ex.automain
-def train(_run, lr, epochs, batch_size, tag):
+def train(_run, lr: float, epochs: int, batch_size: int, tag: str, dataset_folder: str):
     # Available options:
     # * 'gtzan_processed'
     # * 'gtzan_augmented_256_test'
 
-    dataset_train, dataset_val = get_datasets("gtzan_processed")
+    dataset_train, dataset_val = get_datasets(dataset_folder)
 
     train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=7)
     val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)
@@ -51,7 +52,7 @@ def train(_run, lr, epochs, batch_size, tag):
 
     checkpoint_callback = ModelCheckpoint(
         dirpath="model_checkpoints",
-        save_top_k=2,
+        save_top_k=1,
         monitor="val.loss",
         filename=f"{tag}-" + "{epoch}",
     )
@@ -64,6 +65,7 @@ def train(_run, lr, epochs, batch_size, tag):
             early_stopping_callback,
             checkpoint_callback,
         ],
+        log_every_n_steps=10,
     )
 
     trainer.fit(
