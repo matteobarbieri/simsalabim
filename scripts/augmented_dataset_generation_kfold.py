@@ -7,6 +7,8 @@
 import os, sys
 from glob import glob
 
+sys.path.append("../src")
+sys.path.append("../src")
 
 from data_augmentation import time_stretch_random, shift_pitch_random, reverb_random, noise_random, get_fixed_window
 
@@ -67,7 +69,8 @@ def main():
     hop_length = 512
 
     n_fft = 2048
-    n_mels = 256
+    # n_mels = 256
+    n_mels = int(sys.argv[1])
 
 
     # ## Dataset creation
@@ -107,24 +110,23 @@ def main():
     
     skf = StratifiedKFold()
 
-    # for i, (train_index, test_index) in enumerate(skf.split(X, y)):
+    df_full = None
 
+    for fold, (_, test_index) in enumerate(skf.split(df, df["genre"])):
+        df_test = df.iloc[test_index, :]
 
-    df_train, df_test = train_test_split(df, test_size=test_size, stratify=df["genre"])
-
-    df_train["subset"] = "train"
-    df_test["subset"] = "test"
-
-    df_full = pd.concat((df_train, df_test)).sample(frac=1.0)  # frac is to shuffle
+        df_test["subset"] = f"fold_{fold}"
+        df_full = pd.concat((df_full, df_test))
+        
 
     df_full.head(n=10)
 
 
     # In[92]:
 
-    VARIATIONS_PER_SONG = 20
+    VARIATIONS_PER_SONG = 10
 
-    OUT_FOLDER = f"../data/gtzan_augmented_256_x{VARIATIONS_PER_SONG}_v2"
+    OUT_FOLDER = f"../data/gtzan_augmented_{n_mels}_x{VARIATIONS_PER_SONG}_v2"
 
     
 
@@ -149,7 +151,7 @@ def main():
         "genre": [],
         "subset": [],
         "original": [],
-        "fold": [],
+        # "fold": [],
     }
 
     means = []
@@ -181,7 +183,7 @@ def main():
 
         # (for my own) sanity check
         assert S_db_mel.shape[1] == 1024
-        assert S_db_mel.shape[0] == 256
+        assert S_db_mel.shape[0] == n_mels
 
         if subset != "test":
             means.append(S_db_mel.mean())
@@ -192,6 +194,7 @@ def main():
         processed_files["path"].append(out_file)
         processed_files["genre"].append(genre)
         processed_files["subset"].append(subset)
+        processed_files["original"].append(fname)
 
         np.save(out_file, S_db_mel)
 
@@ -201,8 +204,19 @@ def main():
             y_aug = (
                 y  # This is just so that I can move stuff up and down without going crazy
             )
-            y_aug = shift_pitch_random(y_aug, sr)
-            y_aug = time_stretch_random(y_aug)
+
+
+            # Control amount of augmentation to prevent distorting the sample too much
+            intensities = np.random.uniform(size=(3,))
+            intensities /= intensities.sum()
+
+            y_aug = shift_pitch_random(y_aug, sr, intensity=intensities[0])
+            y_aug = time_stretch_random(y_aug, sr, intensity=intensities[1])
+            y_aug = reverb_random(y_aug, sr, intensity=intensities[2])
+            y_aug = noise_random(y_aug, sr)
+
+            # y_aug = shift_pitch_random(y_aug, sr)
+            # y_aug = time_stretch_random(y_aug)
 
             S = librosa.feature.melspectrogram(
                 y=y_aug, sr=sr, n_fft=n_fft, n_mels=n_mels, hop_length=hop_length
@@ -217,13 +231,14 @@ def main():
 
             # (for my own) sanity check
             assert S_db_mel.shape[1] == 1024
-            assert S_db_mel.shape[0] == 256
+            assert S_db_mel.shape[0] == n_mels
 
             out_file = f"{genre_folder}/{fname[:-4]}-aug-{i}.npy"
 
             processed_files["path"].append(out_file)
             processed_files["genre"].append(genre)
             processed_files["subset"].append(subset)
+            processed_files["original"].append(fname)
 
             np.save(out_file, S_db_mel)
 
@@ -246,3 +261,6 @@ def main():
 
 
     # In[ ]:
+
+
+main()
