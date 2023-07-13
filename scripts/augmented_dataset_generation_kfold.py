@@ -2,15 +2,19 @@
 # coding: utf-8
 
 
-
 # Misc
 import os, sys
 from glob import glob
 
 sys.path.append("../src")
-sys.path.append("../src")
 
-from data_augmentation import time_stretch_random, shift_pitch_random, reverb_random, noise_random, get_fixed_window
+from data_augmentation import (
+    time_stretch_random,
+    shift_pitch_random,
+    reverb_random,
+    noise_random,
+    get_fixed_window,
+)
 
 from sklearn.model_selection import train_test_split, StratifiedKFold
 
@@ -25,41 +29,26 @@ import pandas as pd
 import numpy as np
 
 
-
-
 # Audio stuff
 import librosa
-import librosa.display
-
-
-# In[47]:
 
 
 from tqdm import tqdm
 
 
-# In[9]:
-
 def main():
-
-
     DATA_FOLDER = "../data/gtzan"
-
 
     # ## Sample audio files
 
     # In[10]:
 
-
     # Had to remove jazz file #54 because of corruption, apparently
-
 
     # In[11]:
 
-
     # Make a list of all the wav files in the dataset and store them in a variable
     audio_files = glob(f"{DATA_FOLDER}/*/*.wav")
-
 
     # ### MEL Spectrograms
 
@@ -72,11 +61,9 @@ def main():
     # n_mels = 256
     n_mels = int(sys.argv[1])
 
-
     # ## Dataset creation
 
     # In[14]:
-
 
     wav_files = {
         "path": [],
@@ -95,19 +82,15 @@ def main():
 
     df = pd.DataFrame(wav_files)
 
-
     # ### Do the split first
 
     # In[15]:
 
-
     # 10% for test
     test_size = 0.1
 
-
     # In[16]:
 
-    
     skf = StratifiedKFold()
 
     df_full = None
@@ -117,10 +100,8 @@ def main():
 
         df_test["subset"] = f"fold_{fold}"
         df_full = pd.concat((df_full, df_test))
-        
 
     df_full.head(n=10)
-
 
     # In[92]:
 
@@ -128,23 +109,11 @@ def main():
 
     OUT_FOLDER = f"../data/gtzan_augmented_{n_mels}_x{VARIATIONS_PER_SONG}_v2"
 
-    
-
-
     # In[18]:
-
-
-
-
 
     # In[56]:
 
-
-
-
-
     # In[94]:
-
 
     processed_files = {
         "path": [],
@@ -156,7 +125,6 @@ def main():
 
     means = []
     stds = []
-
 
     for _, r in tqdm(df_full.iterrows(), total=len(df_full)):
         #     print(r)
@@ -201,10 +169,7 @@ def main():
         # Now Create variations by adding pitch_shift and other things
 
         for i in range(1, VARIATIONS_PER_SONG + 1):
-            y_aug = (
-                y  # This is just so that I can move stuff up and down without going crazy
-            )
-
+            y_aug = y  # This is just so that I can move stuff up and down without going crazy
 
             # Control amount of augmentation to prevent distorting the sample too much
             intensities = np.random.uniform(size=(3,))
@@ -242,23 +207,17 @@ def main():
 
             np.save(out_file, S_db_mel)
 
-
     df_aug = pd.DataFrame(processed_files)
     df_aug["path"] = df_aug["path"].apply(lambda x: x[len(OUT_FOLDER) + 1 :])
     df_aug.to_csv(f"{OUT_FOLDER}/metadata.csv", index=False)
 
-
     # In[102]:
-
 
     np.mean(means)
 
-
     # In[104]:
 
-
     np.mean(stds)
-
 
     # In[ ]:
 
