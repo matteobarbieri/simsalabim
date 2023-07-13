@@ -9,16 +9,37 @@ import torch
 
 from audio import wav_to_dfmel
 
+import argparse
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("audio_file", type=str, help="The audio file to be analyzed")
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        help="Path to the checkpoint of the trained model",
+        required=True,
+    )
+    # TODO add this to allow non-cuda inference
+    # parser.add_argument('--cuda', type=str, description="Path to the checkpoint of the trained model")
+
+    return parser.parse_args()
+
 
 def main():
-    S_db_mel = wav_to_dfmel(sys.argv[1])
+    args = parse_args()
 
-    weights_path = "lightning_logs/version_16/checkpoints/epoch=49-step=650.ckpt"
+    S_db_mel = wav_to_dfmel(args.audio_file)
+
+    weights_path = args.checkpoint
 
     litnet = get_model(weights_path=weights_path)
 
     train_transforms = get_transforms()
 
+    # TODO change this to allow non-cuda
     y_hat = litnet(train_transforms(S_db_mel).to("cuda").unsqueeze(0))
 
     cat_idx = torch.argmax(y_hat).item()
