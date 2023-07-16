@@ -1,5 +1,5 @@
 import torch
-from torch import optim, nn
+from torch import optim
 
 import lightning.pytorch as pl
 

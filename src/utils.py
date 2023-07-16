@@ -3,10 +3,18 @@ from torchvision.models import resnet18, resnet50
 from data import NpyDataset
 
 from torch import nn
+import torch
+
+import numpy as np
+
+from collections import OrderedDict
 
 from models import LitResnet
+import lightning.pytorch as pl
 
 import torchvision.transforms as transforms
+
+from data_augmentation import get_n_variations
 
 
 def get_datasets(
@@ -42,7 +50,7 @@ def get_model(
     pretrained: bool = False,
     lr: float = 2e-4,
     _run=None,
-):
+) -> pl.LightningModule:
     net = resnet18(pretrained=pretrained)
     net.fc = nn.Linear(512 * 1, 10)
 
@@ -76,3 +84,58 @@ def get_transforms():
     )
 
     return _transforms
+
+
+# TODO change output type
+def sort_votes(votes: np.ndarray, return_all: bool = False) -> OrderedDict:
+    """
+    Counts and sorts votes for all categories.
+
+    votes: np.ndarray:
+        Contains the categories predicted on the different augmentations
+
+    return_all: bool
+        Return the full sorted list, for a more complete overview of predictions.
+    """
+
+    sorted_votes = {}
+
+    for v in np.unique(votes):
+        sorted_votes[v] = (votes == v).sum()
+
+    sv_tuples = sorted(sorted_votes.items(), key=lambda x: x[1], reverse=True)
+
+    sv_dict = OrderedDict(sv_tuples)
+
+    if return_all:
+        return sv_tuples[0][0], sv_dict
+    else:
+        return sv_tuples[0][0]
+
+
+def inference_one(
+    audio_file_path: str, n_augmentations: int, model: pl.LightningModule
+) -> int:
+    variation_db_mels = get_n_variations(
+        audio_file_path, n_augmentations, return_original=True
+    )
+    """
+    Performs inference on a single audio file, returns category index (0-9)
+    """
+
+    train_transforms = get_transforms()
+
+    # TODO change this to allow non-cuda
+    input_tensors = torch.stack([train_transforms(x) for x in variation_db_mels]).to(
+        "cuda"
+    )
+
+    y_hat = model(input_tensors)
+
+    cat_idx = torch.argmax(y_hat, dim=1)
+
+    votes = cat_idx.cpu().numpy()
+
+    majority_category = sort_votes(votes)
+
+    return majority_category

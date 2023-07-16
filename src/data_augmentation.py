@@ -72,7 +72,9 @@ def noise_random(y: np.ndarray, sr: int = -1, intensity: float = 1.0):
     return y_noise
 
 
-def get_fixed_window(S_db_mel: np.ndarray, width: int = 1024, starting_point: int = None):
+def get_fixed_window(
+    S_db_mel: np.ndarray, width: int = 1024, starting_point: int = None
+):
     # Create a window exactly 1024 wide
     # This is needed because time stretching might make the audio shorter
     """
@@ -87,7 +89,10 @@ def get_fixed_window(S_db_mel: np.ndarray, width: int = 1024, starting_point: in
 
     return S_db_mel[:, start_j : start_j + width]
 
-def get_n_variations(audio_file: str, n: int, n_mels: int = 256, return_original: bool = True) -> List[np.ndarray]:
+
+def get_n_variations(
+    audio_file: str, n: int, n_mels: int = 256, return_original: bool = True
+) -> List[np.ndarray]:
     """
     Returns n augmented versions of the same audio clip
 
@@ -112,8 +117,6 @@ def get_n_variations(audio_file: str, n: int, n_mels: int = 256, return_original
 
         augmentations.append(S_db_mel)
 
-    
-
     # (for my own) sanity check
     assert S_db_mel.shape[1] == 1024
     assert S_db_mel.shape[0] == n_mels
@@ -121,7 +124,9 @@ def get_n_variations(audio_file: str, n: int, n_mels: int = 256, return_original
     # Now Create variations by adding pitch_shift and other things
 
     for i in range(1, n + 1):
-        y_aug = y  # This is just so that I can move stuff up and down without going crazy
+        y_aug = (
+            y  # This is just so that I can move stuff up and down without going crazy
+        )
 
         # Control amount of augmentation to prevent distorting the sample too much
         intensities = np.random.uniform(size=(3,))
