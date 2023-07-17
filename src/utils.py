@@ -23,6 +23,7 @@ def get_dataset(
     metadata_file_name: str = "metadata.csv",
     subset: str = "train",
     original_only: bool = False,
+    subset_mode: str = "default",
 ):
     """
     Utility function to retrieve a specific subset of a
@@ -43,6 +44,7 @@ def get_dataset(
         subset,
         transform=train_transforms,
         original_only=original_only,
+        subset_mode=subset_mode,
     )
 
     return _dataset

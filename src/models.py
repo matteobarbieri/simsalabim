@@ -34,6 +34,9 @@ class LitResnet(pl.LightningModule):
         self.lr = lr
         self._run = _run
 
+        # Required to enable fancy optimization (LR scheduler)
+        self.automatic_optimization = False
+
     def forward(self, x):
         return self.net(x)
 
@@ -41,7 +44,19 @@ class LitResnet(pl.LightningModule):
         x, y = batch
         logits = self.net(x)
 
+        ### STAR MANUAL OPTIMIZATION ###
+        # Required for manual optimization
+        opt = self.optimizers()
+        opt.zero_grad()
         loss = self.loss(logits, y)
+        # loss = self.compute_loss(batch)
+        self.manual_backward(loss)
+        opt.step()
+        ### END MANUAL OPTIMIZATION ###
+
+        if (batch_idx + 1) % 10 == 0:
+            sch = self.lr_schedulers()
+            sch.step()
 
         # Used later for logging
         self.n_train += len(y)
@@ -104,6 +119,9 @@ class LitResnet(pl.LightningModule):
                 "val.loss", self.val_epoch_loss.item() / self.n_val, self.current_epoch
             )
 
+            sch = self.lr_schedulers()
+            self._run.log_scalar("lr", sch.get_last_lr(), self.current_epoch)
+
             self._run.log_scalar("train.accuracy", train_acc, self.current_epoch)
             self._run.log_scalar("val.accuracy", val_acc, self.current_epoch)
 
@@ -123,4 +141,9 @@ class LitResnet(pl.LightningModule):
 
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
-        return optimizer
+
+        from torch.optim.lr_scheduler import ExponentialLR
+
+        lr_scheduler = ExponentialLR(optimizer, gamma=0.95)
+
+        return [optimizer], [lr_scheduler]

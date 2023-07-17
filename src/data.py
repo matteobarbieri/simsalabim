@@ -72,6 +72,9 @@ class NpyDataset(Dataset):
         sample = np.load(os.path.join(self.root_dir, row["path"]))
         genre = row["genre"]
 
+        # Required cast to float32 for compatibility with CUDA weights
+        sample = sample.astype(np.float32)
+
         label = self.cat_to_int[genre]
 
         if self.transform:

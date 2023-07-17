@@ -3,7 +3,7 @@ import os, sys
 # Add src folder in root repo to Python path
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
-from utils import get_model, get_datasets
+from utils import get_model, get_datasets, get_dataset
 
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
@@ -34,19 +34,39 @@ def my_config():
     epochs: int = 3  # Number of epochs
     batch_size: int = 64  # Number of samples per batch
     tag: str = None  # A tag to identify correctly
-    dataset_folder: str = "gtzan_processed"  # Which dataset to use
+    dataset: str = "gtzan_processed"  # Which dataset to use
+    test_subset: str = "fold_0"
 
 
 @ex.automain
-def train(_run, lr: float, epochs: int, batch_size: int, tag: str, dataset_folder: str):
-    # Available options:
-    # * 'gtzan_processed'
-    # * 'gtzan_augmented_256_test'
+def train(
+    _run,
+    lr: float,
+    epochs: int,
+    batch_size: int,
+    tag: str,
+    dataset: str,
+    test_subset: str,
+):
+    dataset_train, dataset_val = get_datasets(dataset)
 
-    dataset_train, dataset_val = get_datasets(dataset_folder)
+    # dataset_train = get_dataset(
+    # dataset,
+    # subset=test_subset,
+    # subset_mode='kfold-train'
+    # )
 
-    train_loader = DataLoader(dataset_train, batch_size=batch_size, num_workers=7)
-    val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)
+    # dataset_val = get_dataset(
+    # dataset,
+    # subset=test_subset,
+    # )
+
+    train_loader = DataLoader(
+        dataset_train, batch_size=batch_size, shuffle=True, num_workers=7
+    )
+    val_loader = DataLoader(
+        dataset_val, batch_size=batch_size, shuffle=True, num_workers=7
+    )
 
     litnet = get_model(eval=False, pretrained=True, lr=lr, _run=_run)
 
@@ -54,7 +74,9 @@ def train(_run, lr: float, epochs: int, batch_size: int, tag: str, dataset_folde
         dirpath="model_checkpoints",
         save_top_k=1,
         monitor="val.loss",
-        filename=f"{tag}-" + "{epoch}",
+        # filename=f"{tag}-" + "{epoch}",
+        filename=f"{tag}-{test_subset}",
+        auto_insert_metric_name=False,
     )
 
     early_stopping_callback = EarlyStopping(monitor="val.loss", patience=5, mode="min")
