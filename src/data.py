@@ -12,16 +12,46 @@ class NpyDataset(Dataset):
     """Npy files"""
 
     def __init__(
-        self, root_dir, metadata_file, subset, subset_col="subset", transform=None
+        self,
+        root_dir: str,
+        metadata_file: str,
+        subset: str,
+        subset_col: str = "subset",
+        subset_mode: str = "default",
+        transform=None,
+        original_only: bool = False,
     ):
         """
         Arguments:
+
+        subset_mode: str
+            Which subset to choose. If == 'default' returns those rows for
+            which the value in column `subset_col` is equal to `subset`,
+            else return the complement set. This is done to retrieve the
+            training set for a k-fold split (it's easier to just point out
+            which data to leave aside).
+
+        original_only: bool
+            Whether to return only the original version of the songs
+            (no augmentations). Used for computing metrics
 
         """
         self.metadata = pd.read_csv(metadata_file)
 
         # Keep only rows for subset
-        self.metadata = self.metadata[self.metadata[subset_col] == subset]
+        if subset_mode == "default":
+            self.metadata = self.metadata[self.metadata[subset_col] == subset]
+        elif subset_mode == "kfold-train":
+            self.metadata = self.metadata[self.metadata[subset_col] != subset]
+        else:
+            raise ValueError(
+                "Parameter `subset_mode` can be either 'default' or 'kfold-train'"
+            )
+
+        if original_only:
+            self.metadata = self.metadata[
+                self.metadata["path"].map(lambda x: "orig" in x)
+            ]
 
         self.subset = subset
 

@@ -17,31 +17,61 @@ import torchvision.transforms as transforms
 from data_augmentation import get_n_variations
 
 
-def get_datasets(
+def get_dataset(
     dataset: str,
     root_data_folder: str = "data",
     metadata_file_name: str = "metadata.csv",
+    subset: str = "train",
+    original_only: bool = False,
 ):
     """
-    Utility function to retrieve different versions of the dataset
+    Utility function to retrieve a specific subset of a
+    specific version of the dataset.
+
+    dataset: str
+        The version of the dataset
+    original_only: bool
+        Whether to return only the "original" (i.e. non-augmented)
+        versions of the audio clips.
     """
 
     train_transforms = get_transforms()
 
-    dataset_train = NpyDataset(
+    _dataset = NpyDataset(
         f"{root_data_folder}/{dataset}",
         f"{root_data_folder}/{dataset}/{metadata_file_name}",
-        "train",
+        subset,
         transform=train_transforms,
-    )
-    dataset_val = NpyDataset(
-        f"{root_data_folder}/{dataset}",
-        f"{root_data_folder}/{dataset}/{metadata_file_name}",
-        "test",
-        transform=train_transforms,
+        original_only=original_only,
     )
 
-    return dataset_train, dataset_val
+    return _dataset
+
+
+def get_datasets(
+    dataset: str,
+    root_data_folder: str = "data",
+    metadata_file_name: str = "metadata.csv",
+    train_subset: str = "train",
+    test_subset: str = "test",
+    original_only: bool = False,
+):
+    dataset_train = get_dataset(
+        dataset,
+        root_data_folder=root_data_folder,
+        metadata_file_name=metadata_file_name,
+        subset=train_subset,
+        original_only=original_only,
+    )
+    dataset_test = get_dataset(
+        dataset,
+        root_data_folder=root_data_folder,
+        metadata_file_name=metadata_file_name,
+        subset=test_subset,
+        original_only=original_only,
+    )
+
+    return dataset_train, dataset_test
 
 
 def get_model(
