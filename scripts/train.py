@@ -52,7 +52,7 @@ def train(
     test_subset: str,
     patience: int,
     lr_scheduler_gamma: float,
-    original_only_val: bool
+    original_only_val: bool,
 ):
     # TODO fix this, leftover from initial tests
     if dataset == "gtzan_processed":
@@ -63,9 +63,7 @@ def train(
         )
 
         dataset_val = get_dataset(
-            dataset,
-            subset=test_subset,
-            original_only=original_only_val
+            dataset, subset=test_subset, original_only=original_only_val
         )
 
     train_loader = DataLoader(

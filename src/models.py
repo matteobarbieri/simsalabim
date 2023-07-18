@@ -129,7 +129,7 @@ class LitResnet(pl.LightningModule):
             sch = self.lr_schedulers()
             # This is for ReduleLR specifically
             # self._run.log_scalar("lr", sch._last_lr, self.current_epoch)
-            
+
             self._run.log_scalar("lr", sch.get_last_lr(), self.current_epoch)
             self._run.log_scalar("train.accuracy", train_acc, self.current_epoch)
             self._run.log_scalar("val.accuracy", val_acc, self.current_epoch)
