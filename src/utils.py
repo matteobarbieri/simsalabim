@@ -85,37 +85,35 @@ def get_datasets(
     return dataset_train, dataset_test
 
 
-def get_resnet18(
-    weights_path: str = None,
-    eval: bool = True,
-    pretrained: bool = False,
-    lr: float = 2e-4,
-    lr_scheduler_gamma: float = 0.95,
-    _run=None,
-) -> pl.LightningModule:
-    net = resnet18(pretrained=pretrained)
+# def get_resnet18(
+#     weights_path: str = None,
+#     eval: bool = True,
+#     lr: float = 2e-4,
+#     lr_scheduler_gamma: float = 0.95,
+#     _run=None,
+# ) -> pl.LightningModule:
+#     net = resnet18(pretrained=pretrained)
 
-    # Small hack to allow 1-channel input into efficientnet, plus the use of
-    # pretrained weights
-    net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-    net.fc = nn.Linear(512 * 1, 10)
+#     # Small hack to allow 1-channel input into efficientnet, plus the use of
+#     # pretrained weights
+#     net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+#     net.fc = nn.Linear(512 * 1, 10)
 
-    # Load weights, if coming from a trained model
-    if weights_path is not None:
-        litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
-    else:
-        litnet = LitResnet(net, lr=lr, _run=_run)
+#     # Load weights, if coming from a trained model
+#     if weights_path is not None:
+#         litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
+#     else:
+#         litnet = LitResnet(net, lr=lr, _run=_run)
 
-    if eval:
-        litnet.eval()
+#     if eval:
+#         litnet.eval()
 
-    return litnet
+#     return litnet
 
 
 def get_effnet_b1(
     weights_path: str = None,
     eval: bool = True,
-    pretrained: bool = False,
     lr: float = 2e-4,
     lr_scheduler_gamma: float = 0.95,
     _run=None,

@@ -7,7 +7,8 @@ import os, sys
 # Add src folder in root repo to Python path
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
-from utils import get_model, get_dataset, inference_one
+from utils import get_effnet_b1, get_dataset, inference_one
+import numpy as np
 
 from tqdm import tqdm
 
@@ -33,6 +34,12 @@ def parse_args():
         "dataset",
         type=str,
         help="Dataset version to use",
+    )
+
+    parser.add_argument(
+        "models_folder",
+        type=str,
+        help="Folder where the k trained models (one for each test fold) are found",
     )
 
     parser.add_argument(
@@ -69,7 +76,9 @@ def parse_args():
     return parser.parse_args()
 
 
-def evaluate_fold(audio_root_dir: str, dataset: str, f: int, n_augmentations: int):
+def evaluate_fold(
+    audio_root_dir: str, dataset: str, f: int, models_folder: str, n_augmentations: int
+):
     """
     dataset: str
         The dataset version to use for the evaluation
@@ -79,14 +88,18 @@ def evaluate_fold(audio_root_dir: str, dataset: str, f: int, n_augmentations: in
 
     ds = get_dataset(dataset, subset=f"fold_{f}", original_only=True)
 
-    # TODO XXX must change to retrieve the actual model trained on the rest of the data
-    model = get_model(weights_path="model_checkpoints/deleteme_test_model.ckpt")
+    # TODO should be able to accept different model loaders
+    model = get_effnet_b1(
+        weights_path=os.path.join(
+            models_folder, f"effnet_b1_non_aug_folds-fold_{f}.ckpt"
+        )
+    )
 
     ys_true = []
     ys_hat = []
 
     # Use the metadata df directly, so that inference-level augmentations can be used
-    for _, r in tqdm(ds.metadata.iloc[:2,].iterrows(), total=len(ds.metadata)):
+    for _, r in tqdm(ds.metadata.iterrows(), total=len(ds.metadata)):
         audio_file_path = os.path.join(audio_root_dir, r["genre"], r["original"])
 
         y_true = ds.cat_to_int[r["genre"]]
@@ -101,13 +114,26 @@ def evaluate_fold(audio_root_dir: str, dataset: str, f: int, n_augmentations: in
     # TODO produce other metrics
     print(f"Accuracy on fold {f}: {acc}")
 
+    metrics = {"acc": acc}
+
+    return metrics
+
 
 def main() -> None:
     args = parse_args()
 
+    metrics = []
+
     for f in range(args.k):
-        evaluate_fold(args.audio_root_dir, args.dataset, f, args.n_augmentations)
-        break
+        metrics.append(
+            evaluate_fold(args.audio_root_dir, args.dataset, f, args.models_folder, args.n_augmentations)
+        )
+        # break
+
+    accuracies = [m["acc"] for m in metrics]
+
+    print(f"Accuracy mean: {np.mean(accuracies)}")
+    print(f"Accuracy std: {np.std(accuracies)}")
 
     return
 
