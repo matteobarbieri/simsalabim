@@ -1,4 +1,13 @@
-from torchvision.models import resnet18, resnet50
+from torchvision.models import (
+    resnet18,
+    resnet50,
+    efficientnet_b4,
+    efficientnet_b0,
+    efficientnet_b1,
+    EfficientNet_B1_Weights,
+    EfficientNet_B4_Weights,
+)
+
 
 from data import NpyDataset
 
@@ -76,27 +85,55 @@ def get_datasets(
     return dataset_train, dataset_test
 
 
-def get_model(
+def get_resnet18(
     weights_path: str = None,
     eval: bool = True,
     pretrained: bool = False,
     lr: float = 2e-4,
+    lr_scheduler_gamma: float = 0.95,
     _run=None,
 ) -> pl.LightningModule:
     net = resnet18(pretrained=pretrained)
-    net.fc = nn.Linear(512 * 1, 10)
 
-    # net = resnet50(pretrained=pretrained)
-    # net.fc = nn.Linear(512 * 4, 10)
-
-    # Required layer change for 1-dim input
+    # Small hack to allow 1-channel input into efficientnet, plus the use of
+    # pretrained weights
     net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
+    net.fc = nn.Linear(512 * 1, 10)
 
     # Load weights, if coming from a trained model
     if weights_path is not None:
         litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
     else:
         litnet = LitResnet(net, lr=lr, _run=_run)
+
+    if eval:
+        litnet.eval()
+
+    return litnet
+
+
+def get_effnet_b1(
+    weights_path: str = None,
+    eval: bool = True,
+    pretrained: bool = False,
+    lr: float = 2e-4,
+    lr_scheduler_gamma: float = 0.95,
+    _run=None,
+) -> pl.LightningModule:
+    net = efficientnet_b1(weights=EfficientNet_B1_Weights.IMAGENET1K_V1)
+
+    # Small hack to allow 1-channel input into efficientnet, plus the use of
+    # pretrained weights
+    net.features[0][0] = nn.Conv2d(
+        1, 32, kernel_size=3, stride=2, padding=1, bias=False
+    )
+    net.classifier[1] = nn.Linear(1280, 10, bias=True)
+
+    # Load weights, if coming from a trained model
+    if weights_path is not None:
+        litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
+    else:
+        litnet = LitResnet(net, lr=lr, lr_scheduler_gamma=lr_scheduler_gamma, _run=_run)
 
     if eval:
         litnet.eval()

@@ -7,10 +7,14 @@ from focal_loss import FocalLoss
 
 from sklearn.metrics import accuracy_score, confusion_matrix
 
+from torch.optim.lr_scheduler import ExponentialLR, ReduceLROnPlateau
+
 
 # define the LightningModule
 class LitResnet(pl.LightningModule):
-    def __init__(self, net, lr=2e-4, _run=None):
+    def __init__(
+        self, net, lr: float = 2e-4, lr_scheduler_gamma: float = 0.95, _run=None
+    ):
         super().__init__()
         self.net = net
 
@@ -32,6 +36,7 @@ class LitResnet(pl.LightningModule):
         self.val_y_hat = []
 
         self.lr = lr
+        self.lr_scheduler_gamma = lr_scheduler_gamma
         self._run = _run
 
         # Required to enable fancy optimization (LR scheduler)
@@ -54,9 +59,10 @@ class LitResnet(pl.LightningModule):
         opt.step()
         ### END MANUAL OPTIMIZATION ###
 
-        if (batch_idx + 1) % 10 == 0:
-            sch = self.lr_schedulers()
-            sch.step()
+        # # TODO frequency of tuning should be chosen better
+        # if (batch_idx + 1) % 49 == 0:
+        #     sch = self.lr_schedulers()
+        #     sch.step()
 
         # Used later for logging
         self.n_train += len(y)
@@ -89,6 +95,7 @@ class LitResnet(pl.LightningModule):
         # Logging to TensorBoard (if installed) by default
         # Logging mostly for early stopping
         self.log("val.loss", loss)
+
         return loss
 
     def on_validation_epoch_end(self):
@@ -120,10 +127,16 @@ class LitResnet(pl.LightningModule):
             )
 
             sch = self.lr_schedulers()
+            # This is for ReduleLR specifically
+            # self._run.log_scalar("lr", sch._last_lr, self.current_epoch)
+            
             self._run.log_scalar("lr", sch.get_last_lr(), self.current_epoch)
-
             self._run.log_scalar("train.accuracy", train_acc, self.current_epoch)
             self._run.log_scalar("val.accuracy", val_acc, self.current_epoch)
+
+            # This is for the reduce on plateau LR scheduler
+            # sch.step(self.val_epoch_loss.item())
+            sch.step()
 
             print(80 * "=")
 
@@ -142,8 +155,15 @@ class LitResnet(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = optim.Adam(self.parameters(), lr=(self.lr or self.learning_rate))
 
-        from torch.optim.lr_scheduler import ExponentialLR
+        lr_scheduler = ExponentialLR(optimizer, gamma=self.lr_scheduler_gamma)
+        # lr_scheduler = ReduceLROnPlateau(
+        #     optimizer,
+        #     "min",
+        #     factor=self.lr_scheduler_gamma,
+        #     min_lr=self.lr * 0.001,
+        #     patience=2,
+        # )
 
-        lr_scheduler = ExponentialLR(optimizer, gamma=0.95)
+        # lr_scheduler._last_lr = self.lr
 
         return [optimizer], [lr_scheduler]

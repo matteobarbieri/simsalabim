@@ -1,20 +1,42 @@
 #!/bin/bash
 
-EPOCHS=3
-LR=1e-4
-# DATASET=gtzan_augmented_256_x10_v2
-DATASET=gtzan_processed
-BATCH_SIZE=64
+###########################
+### All-purpose testing ###
+###########################
 
-# for fold in fold_0 fold_1 fold_2 fold_3 fold_4; do
-# for fold in fold_0 fold_1; do
-for fold in fold_0; do
+# LR_SCHEDULER_GAMMA=0.63  # 0.63^5 = 0.1
+# LR_SCHEDULER_GAMMA=0.8  # 0.8^10 = 0.1
+
+EPOCHS=200
+
+# DATASET=gtzan_augmented_256_x10_v2
+# LR=1e-5
+# TAG=effnet_b1_augmented
+# ORIGINAL_ONLY_VAL=True
+# BATCH_SIZE=16 # efficientnetb{0, 1}
+# LR_SCHEDULER_GAMMA=0.95
+
+DATASET=gtzan_augmented_256_x0_v3
+LR=1e-4
+TAG=effnet_b1_non_aug_folds
+ORIGINAL_ONLY_VAL=True
+BATCH_SIZE=16 # efficientnetb{0, 1}
+LR_SCHEDULER_GAMMA=0.95
+
+# FOLDS="fold_0" # For testing a single fold
+FOLDS="fold_0 fold_1 fold_2 fold_3 fold_4"
+
+
+for fold in $FOLDS; do
     poetry run \
         python scripts/train.py with \
             dataset=${DATASET} \
+            original_only_val=${ORIGINAL_ONLY_VAL} \
             epochs=${EPOCHS} \
             lr=${LR} \
-            tag=resnet18_focal \
+            tag=${TAG} \
+            lr_scheduler_gamma=${LR_SCHEDULER_GAMMA} \
             batch_size=${BATCH_SIZE} \
             test_subset=${fold}
+            
 done
