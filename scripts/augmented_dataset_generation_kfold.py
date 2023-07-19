@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-
-# Misc
 import os, sys
 from glob import glob
 
 sys.path.append("../src")
+
+import pandas as pd
+import numpy as np
+
+import librosa
+
+from tqdm import tqdm
+
+import argparse
 
 from data_augmentation import (
     time_stretch_random,
@@ -16,54 +23,50 @@ from data_augmentation import (
     get_fixed_window,
 )
 
-from sklearn.model_selection import train_test_split, StratifiedKFold
-
-# import random
+from sklearn.model_selection import StratifiedKFold
 
 
-# In[4]:
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "n_mels", type=int, help="n_mels parameter for MEL Spectrogram generation"
+    )
+
+    parser.add_argument(
+        "--data-folder",
+        type=str,
+        default=os.path.join(os.path.dirname(__file__), "..", "data", "gtzan"),
+    )
+
+    parser.add_argument(
+        "--n-variations",
+        type=int,
+        default=10,
+        help="How many augmentations to generate for each file",
+    )
+
+    parser.add_argument(
+        "--tag",
+        type=str,
+        default="",
+        help="An optional tag for the created dataset",
+    )
+
+    return parser.parse_args()
 
 
-# Dataframes and such
-import pandas as pd
-import numpy as np
-
-
-# Audio stuff
-import librosa
-
-
-from tqdm import tqdm
-
-
-def main():
-    DATA_FOLDER = "../data/gtzan"
-
-    # ## Sample audio files
-
-    # In[10]:
+def main() -> None:
+    args = parse_args()
 
     # Had to remove jazz file #54 because of corruption, apparently
-
-    # In[11]:
-
     # Make a list of all the wav files in the dataset and store them in a variable
-    audio_files = glob(f"{DATA_FOLDER}/*/*.wav")
-
-    # ### MEL Spectrograms
-
-    # In[13]:
+    audio_files = glob(f"{args.data_folder}/*/*.wav")
 
     # Parameters for mel spectrograms generation
     hop_length = 512
 
     n_fft = 2048
-    # n_mels = 256
-    n_mels = int(sys.argv[1])
-
-    # ## Dataset creation
-
-    # In[14]:
 
     wav_files = {
         "path": [],
@@ -82,15 +85,6 @@ def main():
 
     df = pd.DataFrame(wav_files)
 
-    # ### Do the split first
-
-    # In[15]:
-
-    # 10% for test
-    test_size = 0.1
-
-    # In[16]:
-
     skf = StratifiedKFold()
 
     df_full = None
@@ -101,34 +95,21 @@ def main():
         df_test["subset"] = f"fold_{fold}"
         df_full = pd.concat((df_full, df_test))
 
-    df_full.head(n=10)
-
-    # In[92]:
-
-    VARIATIONS_PER_SONG = 10
-
-    OUT_FOLDER = f"../data/gtzan_augmented_{n_mels}_x{VARIATIONS_PER_SONG}_v2"
-
-    # In[18]:
-
-    # In[56]:
-
-    # In[94]:
+    OUT_FOLDER = f"../data/gtzan_augmented_{args.n_mels}_x{args.n_variations}"
+    if args.tag != "":
+        OUT_FOLDER += f"_{args.tag}"
 
     processed_files = {
         "path": [],
         "genre": [],
         "subset": [],
         "original": [],
-        # "fold": [],
     }
 
     means = []
     stds = []
 
     for _, r in tqdm(df_full.iterrows(), total=len(df_full)):
-        #     print(r)
-
         genre = r["genre"]
         fname = r["path"].split("/")[-1]
         subset = r["subset"]
@@ -138,11 +119,11 @@ def main():
         os.makedirs(genre_folder, exist_ok=True)
 
         # Load audio file and create spectrogram
-        y, sr = librosa.load(os.path.join(DATA_FOLDER, r["path"]))
+        y, sr = librosa.load(os.path.join(args.data_folder, r["path"]))
 
         # First save the spectrogram of the original version of the file
         S = librosa.feature.melspectrogram(
-            y=y, sr=sr, n_fft=n_fft, n_mels=n_mels, hop_length=hop_length
+            y=y, sr=sr, n_fft=n_fft, n_mels=args.n_mels, hop_length=hop_length
         )
 
         S_db_mel = librosa.amplitude_to_db(S, ref=np.max)
@@ -151,11 +132,12 @@ def main():
 
         # (for my own) sanity check
         assert S_db_mel.shape[1] == 1024
-        assert S_db_mel.shape[0] == n_mels
+        assert S_db_mel.shape[0] == args.n_mels
 
-        if subset != "test":
-            means.append(S_db_mel.mean())
-            stds.append(S_db_mel.std())
+        # TODO check this
+        # if subset != "test":
+        #     means.append(S_db_mel.mean())
+        #     stds.append(S_db_mel.std())
 
         out_file = f"{genre_folder}/{fname[:-4]}-orig.npy"
 
@@ -168,7 +150,7 @@ def main():
 
         # Now Create variations by adding pitch_shift and other things
 
-        for i in range(1, VARIATIONS_PER_SONG + 1):
+        for i in range(1, args.n_variations + 1):
             y_aug = y  # This is just so that I can move stuff up and down without going crazy
 
             # Control amount of augmentation to prevent distorting the sample too much
@@ -180,11 +162,8 @@ def main():
             y_aug = reverb_random(y_aug, sr, intensity=intensities[2])
             y_aug = noise_random(y_aug, sr)
 
-            # y_aug = shift_pitch_random(y_aug, sr)
-            # y_aug = time_stretch_random(y_aug)
-
             S = librosa.feature.melspectrogram(
-                y=y_aug, sr=sr, n_fft=n_fft, n_mels=n_mels, hop_length=hop_length
+                y=y_aug, sr=sr, n_fft=n_fft, n_mels=args.n_mels, hop_length=hop_length
             )
 
             S_db_mel = librosa.amplitude_to_db(S, ref=np.max)
@@ -196,7 +175,7 @@ def main():
 
             # (for my own) sanity check
             assert S_db_mel.shape[1] == 1024
-            assert S_db_mel.shape[0] == n_mels
+            assert S_db_mel.shape[0] == args.n_mels
 
             out_file = f"{genre_folder}/{fname[:-4]}-aug-{i}.npy"
 
@@ -211,15 +190,9 @@ def main():
     df_aug["path"] = df_aug["path"].apply(lambda x: x[len(OUT_FOLDER) + 1 :])
     df_aug.to_csv(f"{OUT_FOLDER}/metadata.csv", index=False)
 
-    # In[102]:
-
-    np.mean(means)
-
-    # In[104]:
-
-    np.mean(stds)
-
-    # In[ ]:
+    # np.mean(means)
+    # np.mean(stds)
 
 
-main()
+if __name__ == "__main__":
+    main()
