@@ -118,12 +118,12 @@ class LitResnet(pl.LightningModule):
 
             self._run.log_scalar(
                 "train.loss",
-                self.train_epoch_loss.item() / self.n_train,
+                self.train_epoch_loss.item() / len(train_y),
                 self.current_epoch,
             )
 
             self._run.log_scalar(
-                "val.loss", self.val_epoch_loss.item() / self.n_val, self.current_epoch
+                "val.loss", self.val_epoch_loss.item() / len(val_y), self.current_epoch
             )
 
             sch = self.lr_schedulers()
@@ -133,6 +133,9 @@ class LitResnet(pl.LightningModule):
             self._run.log_scalar("lr", sch.get_last_lr(), self.current_epoch)
             self._run.log_scalar("train.accuracy", train_acc, self.current_epoch)
             self._run.log_scalar("val.accuracy", val_acc, self.current_epoch)
+
+            # In case I want to use it for checkpointing
+            self.log("val.accuracy", val_acc)
 
             # This is for the reduce on plateau LR scheduler
             # sch.step(self.val_epoch_loss.item())
