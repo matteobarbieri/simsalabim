@@ -12,6 +12,8 @@ import numpy as np
 
 from tqdm import tqdm
 
+from glob import glob
+
 from sklearn.metrics import accuracy_score
 
 import argparse
@@ -88,12 +90,11 @@ def evaluate_fold(
 
     ds = get_dataset(dataset, subset=f"fold_{f}", original_only=True)
 
+    # So I don't have to fish for the correct file name
+    weights_path = glob(os.path.join(models_folder, f"*fold_{f}.ckpt"))[0]
+
     # TODO should be able to accept different model loaders
-    model = get_effnet_b1(
-        weights_path=os.path.join(
-            models_folder, f"effnet_b1_non_aug_folds-fold_{f}.ckpt"
-        )
-    )
+    model = get_effnet_b1(weights_path=weights_path)
 
     ys_true = []
     ys_hat = []
@@ -126,7 +127,13 @@ def main() -> None:
 
     for f in range(args.k):
         metrics.append(
-            evaluate_fold(args.audio_root_dir, args.dataset, f, args.models_folder, args.n_augmentations)
+            evaluate_fold(
+                args.audio_root_dir,
+                args.dataset,
+                f,
+                args.models_folder,
+                args.n_augmentations,
+            )
         )
         # break
 
