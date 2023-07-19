@@ -6,6 +6,9 @@ __all__ = [
 ]
 
 import random
+
+random.seed(11)
+
 from typing import List
 
 import numpy as np
@@ -15,10 +18,6 @@ import pedalboard
 import librosa
 
 reverb = pedalboard.Reverb()
-
-# Parameters for mel spectrograms generation
-hop_length = 512
-n_fft = 2048
 
 from librosa.effects import time_stretch
 
@@ -91,7 +90,7 @@ def get_fixed_window(
 
 
 def get_n_variations(
-    audio_file: str, n: int, n_mels: int = 256, return_original: bool = True
+    audio_file: str, n: int, n_mels: int = 256, n_fft: int = 2048, hop_length: int = 512, return_original: bool = True
 ) -> List[np.ndarray]:
     """
     Returns n augmented versions of the same audio clip
@@ -137,8 +136,6 @@ def get_n_variations(
         y_aug = reverb_random(y_aug, sr, intensity=intensities[2])
         y_aug = noise_random(y_aug, sr)
 
-        # y_aug = shift_pitch_random(y_aug, sr)
-        # y_aug = time_stretch_random(y_aug)
 
         S = librosa.feature.melspectrogram(
             y=y_aug, sr=sr, n_fft=n_fft, n_mels=n_mels, hop_length=hop_length
@@ -158,11 +155,4 @@ def get_n_variations(
         # Must explicity convert to float 32 because somewhere in the augmentation process it creates float64 and it's a no-no for the inference with the model
         augmentations.append(S_db_mel.astype(np.float32))
 
-        # out_file = f"{genre_folder}/{fname[:-4]}-aug-{i}.npy"
-
-        # processed_files["path"].append(out_file)
-        # processed_files["genre"].append(genre)
-        # processed_files["subset"].append(subset)
-        # processed_files["original"].append(fname)
-    # 1/0
     return augmentations
