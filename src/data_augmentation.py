@@ -90,7 +90,12 @@ def get_fixed_window(
 
 
 def get_n_variations(
-    audio_file: str, n: int, n_mels: int = 256, n_fft: int = 2048, hop_length: int = 512, return_original: bool = True
+    audio_file: str,
+    n: int,
+    n_mels: int = 256,
+    n_fft: int = 2048,
+    hop_length: int = 512,
+    return_original: bool = True,
 ) -> List[np.ndarray]:
     """
     Returns n augmented versions of the same audio clip
@@ -135,7 +140,6 @@ def get_n_variations(
         y_aug = time_stretch_random(y_aug, sr, intensity=intensities[1])
         y_aug = reverb_random(y_aug, sr, intensity=intensities[2])
         y_aug = noise_random(y_aug, sr)
-
 
         S = librosa.feature.melspectrogram(
             y=y_aug, sr=sr, n_fft=n_fft, n_mels=n_mels, hop_length=hop_length
