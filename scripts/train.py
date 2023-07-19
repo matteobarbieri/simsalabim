@@ -73,7 +73,6 @@ def train(
 
     litnet = get_effnet_b1(
         eval=False,
-        pretrained=True,
         lr=lr,
         lr_scheduler_gamma=lr_scheduler_gamma,
         _run=_run,
@@ -82,7 +81,8 @@ def train(
     checkpoint_callback = ModelCheckpoint(
         dirpath=f"model_checkpoints/{tag}",
         save_top_k=1,
-        monitor="val.loss",
+        monitor="val.accuracy",
+        mode="max",
         # filename=f"{tag}-" + "{epoch}",
         filename=f"{tag}-{test_subset}",
         auto_insert_metric_name=False,
