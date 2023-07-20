@@ -3,7 +3,7 @@ import os, sys
 # Add src folder in root repo to Python path
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
-from utils import get_datasets, get_dataset, get_effnet_b1
+from utils import get_dataset, MODEL_LOADERS
 
 import lightning.pytorch as pl
 from lightning.pytorch.callbacks.early_stopping import EarlyStopping
@@ -37,8 +37,11 @@ def my_config():
     dataset: str = "gtzan_processed"  # Which dataset to use
     test_subset: str = "fold_0"
     patience: int = 10  # Patience parameter for early stopping
-    lr_scheduler_gamma: float  # Gamma parameter for LR scheduler
+    lr_scheduler_gamma: float = 0.95  # Gamma parameter for LR scheduler
     original_only_val: bool = False
+    model_name: str = "effnet_b1"
+    pretrained: bool = True  # Whether to load pretrained weights for training
+    # loss_function: str = "focal_06"  # Loss function
 
 
 @ex.automain
@@ -53,27 +56,25 @@ def train(
     patience: int,
     lr_scheduler_gamma: float,
     original_only_val: bool,
+    model_name: str,
+    pretrained: bool,
+    # loss_function: str,
 ):
-    # TODO fix this, leftover from initial tests
-    if dataset == "gtzan_processed":
-        dataset_train, dataset_val = get_datasets(dataset)
-    else:
-        dataset_train = get_dataset(
-            dataset, subset=test_subset, subset_mode="kfold-train"
-        )
+    dataset_train = get_dataset(dataset, subset=test_subset, subset_mode="kfold-train")
 
-        dataset_val = get_dataset(
-            dataset, subset=test_subset, original_only=original_only_val
-        )
+    dataset_val = get_dataset(
+        dataset, subset=test_subset, original_only=original_only_val
+    )
 
     train_loader = DataLoader(
         dataset_train, batch_size=batch_size, shuffle=True, num_workers=7
     )
     val_loader = DataLoader(dataset_val, batch_size=batch_size, num_workers=7)
 
-    litnet = get_effnet_b1(
+    litnet = MODEL_LOADERS[model_name](
         eval=False,
         lr=lr,
+        pretrained=pretrained,
         lr_scheduler_gamma=lr_scheduler_gamma,
         _run=_run,
     )

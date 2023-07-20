@@ -1,11 +1,8 @@
 from torchvision.models import (
-    resnet18,
-    resnet50,
-    efficientnet_b4,
-    efficientnet_b0,
     efficientnet_b1,
+    efficientnet_b2,
     EfficientNet_B1_Weights,
-    EfficientNet_B4_Weights,
+    EfficientNet_B2_Weights,
 )
 
 
@@ -85,47 +82,17 @@ def get_datasets(
     return dataset_train, dataset_test
 
 
-# def get_resnet18(
-#     weights_path: str = None,
-#     eval: bool = True,
-#     lr: float = 2e-4,
-#     lr_scheduler_gamma: float = 0.95,
-#     _run=None,
-# ) -> pl.LightningModule:
-#     net = resnet18(pretrained=pretrained)
-
-#     # Small hack to allow 1-channel input into efficientnet, plus the use of
-#     # pretrained weights
-#     net.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3, bias=False)
-#     net.fc = nn.Linear(512 * 1, 10)
-
-#     # Load weights, if coming from a trained model
-#     if weights_path is not None:
-#         litnet = LitResnet.load_from_checkpoint(weights_path, net=net)
-#     else:
-#         litnet = LitResnet(net, lr=lr, _run=_run)
-
-#     if eval:
-#         litnet.eval()
-
-#     return litnet
-
-
-def get_effnet_b1(
-    weights_path: str = None,
-    eval: bool = True,
-    lr: float = 2e-4,
-    lr_scheduler_gamma: float = 0.95,
-    _run=None,
-) -> pl.LightningModule:
-    net = efficientnet_b1(weights=EfficientNet_B1_Weights.IMAGENET1K_V1)
-
-    # Small hack to allow 1-channel input into efficientnet, plus the use of
-    # pretrained weights
-    net.features[0][0] = nn.Conv2d(
-        1, 32, kernel_size=3, stride=2, padding=1, bias=False
-    )
-    net.classifier[1] = nn.Linear(1280, 10, bias=True)
+def wrap_model(
+    net,
+    weights_path: str,
+    eval: bool,
+    lr: float,
+    lr_scheduler_gamma: float,
+    _run,
+):
+    """
+    Wraps a regular torch model with the lightningmodule class
+    """
 
     # Load weights, if coming from a trained model
     if weights_path is not None:
@@ -137,6 +104,54 @@ def get_effnet_b1(
         litnet.eval()
 
     return litnet
+
+
+def get_effnet_b1(
+    weights_path: str = None,
+    pretrained: bool = True,
+    eval: bool = True,
+    lr: float = 2e-4,
+    lr_scheduler_gamma: float = 0.95,
+    _run=None,
+) -> pl.LightningModule:
+    if pretrained:
+        net = efficientnet_b1(weights=EfficientNet_B1_Weights.IMAGENET1K_V1)
+    else:
+        net = efficientnet_b1()
+
+    # Small hack to allow 1-channel input into EfficientNet, plus the use of
+    # pretrained weights
+    net.features[0][0] = nn.Conv2d(
+        1, 32, kernel_size=3, stride=2, padding=1, bias=False
+    )
+    net.classifier[1] = nn.Linear(1280, 10, bias=True)
+
+    # Wrap model with Pytorch Lightning stuff
+    return wrap_model(net, weights_path, eval, lr, lr_scheduler_gamma, _run)
+
+
+def get_effnet_b2(
+    weights_path: str = None,
+    pretrained: bool = True,
+    eval: bool = True,
+    lr: float = 2e-4,
+    lr_scheduler_gamma: float = 0.95,
+    _run=None,
+) -> pl.LightningModule:
+    if pretrained:
+        net = efficientnet_b2(weights=EfficientNet_B2_Weights.IMAGENET1K_V1)
+    else:
+        net = efficientnet_b2()
+
+    # Small hack to allow 1-channel input into EfficientNet, plus the use of
+    # pretrained weights
+    net.features[0][0] = nn.Conv2d(
+        1, 32, kernel_size=3, stride=2, padding=1, bias=False
+    )
+    net.classifier[1] = nn.Linear(1408, 10, bias=True)
+
+    # Wrap model with Pytorch Lightning stuff
+    return wrap_model(net, weights_path, eval, lr, lr_scheduler_gamma, _run)
 
 
 def get_transforms():
@@ -206,3 +221,9 @@ def inference_one(
     majority_category = sort_votes(votes)
 
     return majority_category
+
+
+MODEL_LOADERS = {
+    "effnet_b1": get_effnet_b1,
+    "effnet_b2": get_effnet_b2,
+}
