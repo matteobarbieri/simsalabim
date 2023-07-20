@@ -4,7 +4,7 @@
 import os, sys
 from glob import glob
 
-sys.path.append("../src")
+sys.path.append(os.path.dirname(__file__) + "/../src")
 
 import pandas as pd
 import numpy as np
