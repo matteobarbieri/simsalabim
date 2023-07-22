@@ -14,7 +14,15 @@ from tqdm import tqdm
 
 from glob import glob
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+
+import matplotlib
+
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
+
+from typing import Tuple, List
 
 import argparse
 
@@ -65,6 +73,13 @@ def parse_args():
         help="Number of folds used",
     )
 
+    parser.add_argument(
+        "--cm-filename",
+        type=str,
+        default="confusion_matrix.png",
+        help="Name of the output file for the confusion matrix",
+    )
+
     # parser.add_argument(
     #     "--decision-strategy",
     #     type=str,
@@ -80,12 +95,16 @@ def parse_args():
 
 def evaluate_fold(
     audio_root_dir: str, dataset: str, f: int, models_folder: str, n_augmentations: int
-):
+) -> Tuple[List, List]:
     """
     dataset: str
         The dataset version to use for the evaluation
     f: int
         The fold index to evaluate
+    models_folder: str
+        The folder where the 5 models are saved
+    n_augmentations:
+        The number of augmentations to compute for each
     """
 
     ds = get_dataset(dataset, subset=f"fold_{f}", original_only=True)
@@ -110,63 +129,62 @@ def evaluate_fold(
         ys_true.append(y_true)
         ys_hat.append(y_hat)
 
-    acc = accuracy_score(ys_true, ys_hat)
-
-    # TODO produce other metrics
-    print(f"Accuracy on fold {f}: {acc}")
-
-    metrics = {"acc": acc}
-
-    return metrics
+    return ys_true, ys_hat
 
 
 def main() -> None:
     args = parse_args()
 
-    metrics = []
+    ys_true = []
+    ys_hat = []
+
+    accuracies = []
 
     for f in range(args.k):
-        metrics.append(
-            evaluate_fold(
-                args.audio_root_dir,
-                args.dataset,
-                f,
-                args.models_folder,
-                args.n_augmentations,
-            )
+        yt_k, yh_k = evaluate_fold(
+            args.audio_root_dir,
+            args.dataset,
+            f,
+            args.models_folder,
+            args.n_augmentations,
         )
-        # break
 
-    accuracies = [m["acc"] for m in metrics]
+        accuracies.append(accuracy_score(yt_k, yh_k))
+
+        ys_true.extend(yt_k)
+        ys_hat.extend(yh_k)
 
     print(f"Accuracy mean: {np.mean(accuracies)}")
     print(f"Accuracy std: {np.std(accuracies)}")
 
+    labels = [
+        "blues",
+        "classical",
+        "country",
+        "disco",
+        "hiphop",
+        "jazz",
+        "metal",
+        "pop",
+        "reggae",
+        "rock",
+    ]
+
+    cm = confusion_matrix(ys_true, ys_hat)
+
+    fig = plt.figure(figsize=(12, 12))
+
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+
+    disp.plot(cmap="Blues", colorbar=False, xticks_rotation=45)
+
+    fig.autofmt_xdate(bottom=0.2, rotation=30, ha="right")
+
+    plt.tight_layout()
+
+    plt.savefig(args.cm_filename)
+
     return
-
-    # model = get_model(weights_path=args.checkpoint)
-
-    cat_idx = inference_one(args.audio_file, args.n_augmentations, model)
-
-    # Hardcode categories because I'm lazy and it works for now
-    cat_to_int = {
-        "blues": 0,
-        "classical": 1,
-        "country": 2,
-        "disco": 3,
-        "hiphop": 4,
-        "jazz": 5,
-        "metal": 6,
-        "pop": 7,
-        "reggae": 8,
-        "rock": 9,
-    }
-
-    int_to_cat = {v: k for k, v in cat_to_int.items()}
-
-    predicted_genre = int_to_cat[cat_idx]
-
-    print(f"Predicted genre: {predicted_genre}")
 
 
 if __name__ == "__main__":
