@@ -19,8 +19,7 @@ class LitResnet(pl.LightningModule):
         self.net = net
 
         # self.loss = nn.CrossEntropyLoss(reduction="sum")
-        # self.loss = FocalLoss(reduction="sum")
-        self.loss = FocalLoss(size_average=False)
+        self.loss = FocalLoss(size_average=False, gamma=0.5)
 
         # Keep track of how many samples are in the training and validation set (needed for comparing apples to apples)
         self.n_train = 0
@@ -50,7 +49,7 @@ class LitResnet(pl.LightningModule):
         logits = self.net(x)
 
         ### STAR MANUAL OPTIMIZATION ###
-        # Required for manual optimization
+        # Required for lr scheduler
         opt = self.optimizers()
         opt.zero_grad()
         loss = self.loss(logits, y)
@@ -58,11 +57,6 @@ class LitResnet(pl.LightningModule):
         self.manual_backward(loss)
         opt.step()
         ### END MANUAL OPTIMIZATION ###
-
-        # # TODO frequency of tuning should be chosen better
-        # if (batch_idx + 1) % 49 == 0:
-        #     sch = self.lr_schedulers()
-        #     sch.step()
 
         # Used later for logging
         self.n_train += len(y)
