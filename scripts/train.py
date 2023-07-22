@@ -85,7 +85,7 @@ def train(
         monitor="val.accuracy",
         mode="max",
         # filename=f"{tag}-" + "{epoch}",
-        filename=f"{tag}-{test_subset}",
+        filename=f"{tag}-{test_subset}_" + "epoch-{epoch}",
         auto_insert_metric_name=False,
     )
 
