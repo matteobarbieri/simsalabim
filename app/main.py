@@ -1,11 +1,9 @@
-from typing import Union
-
 import os, sys
 
 # Add src folder in root repo to Python path
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
-from utils import get_model, get_transforms
+from utils import get_effnet_b1, get_transforms
 
 import torch
 
@@ -15,10 +13,9 @@ from fastapi import FastAPI, UploadFile
 
 app = FastAPI()
 
-# weights_path = "lightning_logs/version_16/checkpoints/epoch=49-step=650.ckpt"
 weights_path = "/workspace/model/model.ckpt"
 
-litnet = get_model(weights_path=weights_path)
+litnet = get_effnet_b1(weights_path=weights_path)
 
 
 @app.get("/")
