@@ -1,9 +1,14 @@
+"""
+🦉🦉🦉
+DON'T LOOK AT ME, I'M PROBABLY DEPRECATED!!!
+🦉🦉🦉
+"""
 import os, sys
 
 # Add src folder in root repo to Python path
 sys.path.append(os.path.dirname(__file__) + "/../src")
 
-from utils import get_model, inference_one
+from utils import get_effnet_b1, inference_one
 
 import argparse
 
@@ -40,7 +45,8 @@ def parse_args():
 def main() -> None:
     args = parse_args()
 
-    model = get_model(weights_path=args.checkpoint)
+    model = get_effnet_b1(weights_path=args.checkpoint)
+    # model = get_model(weights_path=args.checkpoint)
 
     cat_idx = inference_one(args.audio_file, args.n_augmentations, model)
 
