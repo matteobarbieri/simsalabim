@@ -158,7 +158,6 @@ def get_transforms():
     _transforms = transforms.Compose(
         [
             transforms.ToTensor(),
-            # transforms.Resize((256, 1290), transforms.InterpolationMode.NEAREST),
             transforms.Normalize(
                 mean=[-72.79], std=[12.02]
             ),  # computed from training data
