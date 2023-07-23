@@ -30,16 +30,6 @@ import argparse
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    # parser.add_argument("audio_file", type=str, help="The audio file to be analyzed")
-
-    # This must be changed since it will have to load k different models
-    # parser.add_argument(
-    #     "--checkpoint",
-    #     type=str,
-    #     help="Path to the checkpoint of the trained model",
-    #     required=True,
-    # )
-
     parser.add_argument(
         "dataset",
         type=str,
