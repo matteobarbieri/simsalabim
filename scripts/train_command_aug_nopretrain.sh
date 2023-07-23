@@ -15,16 +15,6 @@ BATCH_SIZE=16 # efficientnetb{0, 1}
 TAG=no_pretrain_aug_1024_focal
 PRETRAINED=False
 
-# DATASET=gtzan_augmented_256_x5
-# MODEL_NAME=effnet_b1
-# LR=5e-5
-# LR_SCHEDULER_GAMMA=0.95
-# ORIGINAL_ONLY_VAL=True
-# BATCH_SIZE=16 # efficientnetb{0, 1}
-# TAG=no_pretrain
-# PRETRAINED=False
-
-
 # FOLDS="fold_0" # For testing a single fold
 FOLDS="fold_0 fold_1 fold_2 fold_3 fold_4" # all 5 folds
 

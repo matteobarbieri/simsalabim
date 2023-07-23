@@ -12,8 +12,8 @@ LR=1e-4
 LR_SCHEDULER_GAMMA=0.95
 ORIGINAL_ONLY_VAL=True
 BATCH_SIZE=16 # efficientnetb{0, 1}
-TAG=no_pretrain_no_aug
-PRETRAINED=False
+TAG=no_pretrain_no_aug_1024
+PRETRAINED=True
 
 # DATASET=gtzan_augmented_256_x5
 # MODEL_NAME=effnet_b1
