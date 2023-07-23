@@ -110,7 +110,7 @@ def evaluate_fold(
     ds = get_dataset(dataset, subset=f"fold_{f}", original_only=True)
 
     # So I don't have to fish for the correct file name
-    weights_path = glob(os.path.join(models_folder, f"*fold_{f}.ckpt"))[0]
+    weights_path = glob(os.path.join(models_folder, f"*fold_{f}*.ckpt"))[0]
 
     # TODO should be able to accept different model loaders
     model = get_effnet_b1(weights_path=weights_path)
