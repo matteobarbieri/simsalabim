@@ -1,11 +1,14 @@
 # Music Genre classifier assignment
 
+Full report can be found in [notebooks/Report.html](notebooks/Report.html)
+
 ## Requirements
 
 * Docker (and compose)
 * Poetry
 * Python 3.10
 * a GPU with at least 12GB VRAM (tested on a T4)
+* For inference with the docker image: docker with nvidia runtime
 
 ## Setup
 
@@ -40,7 +43,9 @@ poetry install
 
 ## Evaluate trained models
 
-There is a script that performs the evaluation steps described in the "Results" section of the report, it can be executed using the following command
+There is a script that performs the evaluation steps described 
+in the "Results" section of the report, it can be executed 
+using the following command
 
 ```shell
 poetry run python \
@@ -50,11 +55,15 @@ poetry run python \
     --cm-filename CM_IMAGE_FILENAME
 ```
 
-Valid (existing) values for `DATASET_NAME` are `gtzan_augmented_256_x0_no_aug` (no augmentations) and `gtzan_augmented_256_x5` (with augmentations).
+Valid (existing) values for `DATASET_NAME` are `gtzan_augmented_256_x0_no_aug` 
+(no augmentations) and `gtzan_augmented_256_x5` (with augmentations).
 
-`PATH/TO/MODEL_CHECKPOINTS_FOLDER` should point to the folder containing the 5 checkpoints, they should match pattern `*fold_{f}*.ckpt`, with f in [0, 4].
+`PATH/TO/MODEL_CHECKPOINTS_FOLDER` should point to the folder 
+containing the 5 checkpoints, they should match pattern 
+`*fold_{f}*.ckpt`, with f in [0, 4].
 
-Example (should work out of the bag if no changes have been made to the folder structure):
+Example (should work out of the bag if no changes have been made 
+to the folder structure):
 
 ```shell
 poetry run python \
@@ -64,7 +73,10 @@ poetry run python \
     --cm-filename cm_noaug_nopretrain_1024.png
 ```
 
-For obvious reasons, models trained on the augmented dataset should be tested on the augmented dataset and the other way around (the names of the models' folders has tags indicating how they were trained).
+For obvious reasons, models trained on the augmented dataset 
+should be tested on the augmented dataset and the other way around 
+(the names of the models' folders has tags indicating how they 
+were trained).
 
 ## Train the model
 
@@ -97,9 +109,18 @@ The four bash scripts used to train the models included above are in the same fo
 make build
 ```
 
-1/0
-
 ## Test inference
+
+Just because it was super fast, I also wrote a small Dockerfile for an image with a simple endpoint using [FastAPI](https://fastapi.tiangolo.com/) that performs predictions on a single audio file at a time, using **one** of the available checkpoints (which must be specified when the image is built).
+
+Clearly this is not expected to have any value from the point of view of the prediction, as it uses only one of the checkpoints, it's just to play around with it.
+
+```shell
+docker build \
+    --build-arg CHKPT_PATH=./model_checkpoints/20230722_182125_effnet_b1_pretrain_aug_1024_focal/20230722_182125_effnet_b1_pretrain_aug_1024_focal-fold_0_epoch-15.ckpt \
+    -t gtzan_serve \
+    .
+```
 
 Either first deploy the dockerized version of the classifier and
 then submit a request using `curl`
@@ -113,8 +134,11 @@ curl \
 ```
 
 or directly with the included inference script (assumes poetry 
-was used for environment setup)
+was used for environment setup).
 
 ```shell
-poetry run python scripts/inference.py path/to/wav/file.wav
+poetry run python \
+    scripts/inference.py \
+    --checkpoint ./model_checkpoints/20230722_182125_effnet_b1_pretrain_aug_1024_focal/20230722_182125_effnet_b1_pretrain_aug_1024_focal-fold_0_epoch-15.ckpt \
+    path/to/wav/file.wav
 ```

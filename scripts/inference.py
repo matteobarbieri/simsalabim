@@ -46,7 +46,6 @@ def main() -> None:
     args = parse_args()
 
     model = get_effnet_b1(weights_path=args.checkpoint)
-    # model = get_model(weights_path=args.checkpoint)
 
     cat_idx = inference_one(args.audio_file, args.n_augmentations, model)
 
